@@ -1,0 +1,23 @@
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    env(RABBITMQ_URL): ''
+
+old_sound_rabbit_mq:
+    connections:
+        default:
+            url: '%env(RABBITMQ_URL)%'
+            lazy:     false
+            connection_timeout: 3
+            read_write_timeout: 3
+
+    rpc_clients:
+        order_create_client:
+            connection:                 default
+            expect_serialized_response: true
+    rpc_servers:
+        order_create_server:
+            connection: default
+            callback: App\Server\OrderCreateServer
+            qos_options: { prefetch_size: 0, prefetch_count: 1, global: false }
+            queue_options: { name: order_create_qu, durable: false, auto_delete: true }
